@@ -51,5 +51,7 @@ dependencies {
     implementation("androidx.camera:camera-view:$cameraxVersion")
 
     implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:translate:17.0.1")
+
 
 }
