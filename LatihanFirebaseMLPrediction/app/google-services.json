@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "109559854010",
+    "project_id": "ml-dicoding-prediction",
+    "storage_bucket": "ml-dicoding-prediction.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109559854010:android:edf2534f0bac750b2ea383",
+        "android_client_info": {
+          "package_name": "com.habibfr.latihantensorflowliteprediction"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwWA1zFHcSOWsV9ZKozHup0fB2CVnPQvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
