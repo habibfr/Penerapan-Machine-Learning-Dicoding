@@ -11,20 +11,31 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.dicoding.asclepius.R
 import com.dicoding.asclepius.Result
+import com.dicoding.asclepius.data.di.Injection
+import com.dicoding.asclepius.data.local.entity.HistoryCancerEntity
 import com.dicoding.asclepius.databinding.ActivityMainBinding
+import com.dicoding.asclepius.helper.DateHelper
 import com.dicoding.asclepius.helper.ImageClassifierHelper
 import com.yalantis.ucrop.UCrop
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.tensorflow.lite.support.label.Category
 import org.tensorflow.lite.task.vision.classifier.Classifications
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 import java.io.File
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageClassifierHelper: ImageClassifierHelper
+    private lateinit var mainViewModel: MainViewModel
 
 
     private var currentImageUri: Uri? = null
@@ -52,14 +63,23 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
         }
 
+        val factory: ViewModelFactory = ViewModelFactory.getInstance(this)
+        mainViewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
+
+
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.analyzeButton.setOnClickListener { analyzeImage() }
+
         binding.newsButton.setOnClickListener {
             val intent = Intent(this, ResultActivity::class.java)
             intent.putExtra(ResultActivity.NEWS, true)
             startActivity(intent)
         }
 
+        binding.historyButton.setOnClickListener {
+            val intent = Intent(this, HistoryCancerActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 
@@ -94,6 +114,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
+//            currentImageUri = UCrop.getOutput(data!!)
+//            showImage(currentImageUri)
+//        } else if (resultCode == UCrop.RESULT_ERROR) {
+//            val error = UCrop.getError(data!!)
+//            showToast("Error cropping image: ${error?.localizedMessage}")
+//        }
+//    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
@@ -105,15 +136,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun cropImage(uri: Uri) {
-        val destinationUri = Uri.fromFile(File(cacheDir, "cropped_image"))
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "cropped_image_$timeStamp.jpg"
+        val destinationUri = Uri.fromFile(File(cacheDir, fileName)) // Menambahkan ekstensi file .jpg
         UCrop.of(uri, destinationUri).withAspectRatio(1f, 1f) // Set desired aspect ratio
             .start(this)
     }
 
     private fun showImage(uri: Uri?) {
         uri?.let {
-            Log.d("Image URI", "showImage: $it")
+//            Log.d("Image URI", "showImage: $it")
             binding.previewImageView.setImageURI(it)
         }
     }
@@ -149,6 +184,16 @@ class MainActivity : AppCompatActivity() {
 //
                                     currentImageUri?.let { imageUri ->
                                         moveToResult(imageUri, sortedCategories.first())
+
+                                        val historyCancer = HistoryCancerEntity(
+                                            imagePath = imageUri.toString(),
+                                            label = sortedCategories.first().label,
+                                            score = sortedCategories.first().score,
+                                            date = DateHelper.getCurrentDate()
+                                        )
+                                        Log.d("GAMBAR", imageUri.toString())
+
+                                        mainViewModel.insertHistoryCancer(historyCancer) // Memanggil fungsi untuk memasukkan ke dalam database
                                     }
 
                                     // Clear the current image

@@ -25,7 +25,8 @@ class ResultActivity : AppCompatActivity() {
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val mainViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())[MainViewModel::class.java]
+        val factory: ViewModelFactory = ViewModelFactory.getInstance(this)
+        val mainViewModel = ViewModelProvider(this, factory)[MainViewModel::class.java]
 
         newsAdapter = NewsAdapter()
         val layoutManager = LinearLayoutManager(this)
