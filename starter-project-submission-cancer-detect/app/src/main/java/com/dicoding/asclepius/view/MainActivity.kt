@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageClassifierHelper: ImageClassifierHelper
 
-    val api = "632ecc55f7d74d6f947b25dffe4edefa"
 
     private var currentImageUri: Uri? = null
 
@@ -55,6 +54,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.analyzeButton.setOnClickListener { analyzeImage() }
+        binding.newsButton.setOnClickListener {
+            val intent = Intent(this, ResultActivity::class.java)
+            intent.putExtra(ResultActivity.NEWS, true)
+            startActivity(intent)
+        }
 
 
     }
